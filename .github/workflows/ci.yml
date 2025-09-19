@@ -1,0 +1,61 @@
+name: C++ CI
+
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++ libgtest-dev
+      
+    - name: Cleanup
+      run: |
+        rm -rf build/ 2>/dev/null || true
+        echo "Cleanup completed"
+      
+    - name: Build project
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake --build build
+        echo "Build completed"
+      
+    - name: Run tests with fallback
+      run: |
+        cd build
+        
+        # Проверяем есть ли тесты для ctest
+        if [ -f "CTestTestfile.cmake" ]; then
+          echo "Running tests with ctest..."
+          ctest --verbose --output-on-failure
+        else
+          echo "No CTest tests found. Searching for test executables..."
+          
+          # Ищем и запускаем исполняемые файлы тестов вручную
+          TEST_FILES=$(find . -name "*test*" -type f -executable)
+          
+          if [ -z "$TEST_FILES" ]; then
+            echo "No test executables found. Checking if main executable exists..."
+            # Проверяем хотя бы что основной бинарник собран
+            if find . -type f -executable | grep -q .; then
+              echo "✅ Build successful - executables found"
+            else
+              echo "❌ No executables found - build may have failed"
+              exit 1
+            fi
+          else
+            echo "Found test executables:"
+            echo "$TEST_FILES"
+            echo "Running tests..."
+            for test_file in $TEST_FILES; do
+              echo "Running: $test_file"
+              ./$test_file || exit 1
+            done
+          fi
+        fi
