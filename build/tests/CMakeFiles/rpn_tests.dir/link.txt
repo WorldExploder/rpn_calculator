@@ -1,0 +1,1 @@
+/usr/bin/c++ -g -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/rpn_tests.dir/test_rpn.cpp.o CMakeFiles/rpn_tests.dir/__/src/rpn.cpp.o -o rpn_tests  ../lib/libgtest_main.a ../lib/libgtest.a

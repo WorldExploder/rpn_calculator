@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/dmitrijleontev/rpn_calculator/build/_deps/googletest-subbuild/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
